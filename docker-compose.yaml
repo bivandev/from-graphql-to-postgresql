@@ -9,8 +9,7 @@ services:
       POSTGRES_PASSWORD: secret
       POSTGRES_DB: spacexdb
       volumes:
-          - ./sql/create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
-          # copy the sql script to showcases tables
-          - ./sql/showcases.sql:/docker-entrypoint-initdb.d/showcases.sql
+        - ./db-data/:/var/lib/postgresql/data/
+        - ./sql/create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
   app:
     build: ./app/
