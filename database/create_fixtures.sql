@@ -1,9 +1,0 @@
-CREATE TABLE IF NOT EXISTS launches (
-
-);
-CREATE TABLE IF NOT EXISTS rockets (
-
-);
-CREATE TABLE IF NOT EXISTS missions (
-
-);

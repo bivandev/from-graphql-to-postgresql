@@ -1,6 +1,5 @@
 import requests
 import psycopg2
-import json
 
 def download_data(query):
     url = "https://spacex-production.up.railway.app/"
@@ -11,7 +10,19 @@ def download_data(query):
 def store_data(conn, data):
     cursor = conn.cursor()
     for item in data:
-        cursor.execute("INSERT INTO spacexdb (field1, field2, ...) VALUES (%s, %s, ...)", (item['field1'], item['field2'], ...))
+        cursor.execute("INSERT INTO launches \
+                      (launch_id, launch_date_utc, launch_success, details) \
+                      VALUES (%s, %s, %s, %s)", 
+                      (item['id'], item['launch_date_utc'], item['launch_success'], item['details'], ),
+                      "INSERT INTO missions \
+                      (mission_id, mission_name) \
+                      VALUES (%s, %s, %s, %s)", 
+                      (item['mission_id'], item['mission_name'] ),
+                      "INSERT INTO rockets \
+                      (rocket_id, rocket_name, rocket_type) \
+                      VALUES (%s, %s, %s, %s)", 
+                      (item['rocket']['rocket']['id'], item['rocket']['rocket_name'], item['rocket']['rocket_type']),
+                      )
     conn.commit()
 
 # Connect to the database
@@ -21,16 +32,14 @@ conn = psycopg2.connect(dbname="spacexdb",
                         host="db",
                         port="5432")
 
-
 # Download the data from the SpaceX GraphQL API
-queryL = """
+query = """
 {
-   launches {
+    launches {
     id
     launch_date_utc
     launch_success
     details
-    upcoming
 
     mission_id
     mission_name
@@ -38,17 +47,18 @@ queryL = """
     rocket {
       rocket_name
       rocket_type
+      rocket {
+        id
+      }
     }
   }
 }
 """
 
-dataL = download_data(queryL)
-dataR = download_data(queryR)
-dataM = download_data(queryM)
+data = download_data(query)
 
 # Store the data in the database
-store_data(conn, dataL['data']['launches'])
+store_data(conn, data['data']['launches'])
 
 # Close the connection
 conn.close()
