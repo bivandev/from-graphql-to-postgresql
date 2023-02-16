@@ -1,0 +1,22 @@
+import requests
+
+def download_data(query):
+    url = "https://spacex-production.up.railway.app/"
+    response = requests.post(url, json={'query': query})
+    data = response.json()
+    print(data)
+    return data
+
+# Download the data from the SpaceX GraphQL API
+query = """
+{
+   missions {
+    description
+    id
+    manufacturers
+    name
+    wikipedia
+  }
+}
+"""
+data = download_data(query)

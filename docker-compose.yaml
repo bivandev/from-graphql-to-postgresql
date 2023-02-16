@@ -1,0 +1,12 @@
+services:
+  db:
+    image: postgres
+    ports:
+      - "5432:5432"
+    restart: always
+    environment:
+      POSTGRES_USER: username
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: spacexdb
+  app:
+    build: ./app/
