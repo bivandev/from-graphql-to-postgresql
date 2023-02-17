@@ -9,24 +9,33 @@ def download_data(query):
     return data
 
 def store_data(conn, data):
-    cursor = conn.cursor()
+    cur = conn.cursor()
     for item in data['rockets']:
-        cursor.execute("""INSERT INTO rockets (rocket_id, rocket_name, rocket_type, active, boosters,cost_per_launch, country, first_flight) 
-                          VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""", 
-                      (item['id'], item['name'], item['type'], item['active'], item['boosters'], 
-                       item['cost_per_launch'], item['country'], item['first_flight'],))
-    
+        cur.execute("""
+            INSERT INTO rockets (rocket_id, rocket_name, rocket_type, active, boosters,cost_per_launch, country, first_flight) 
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            ON CONFLICT DO NOTHING
+        """, (item['id'], item['name'], item['type'], item['active'], item['boosters'], 
+              item['cost_per_launch'], item['country'], item['first_flight'],))
+  
     for item in data['launches']:
-        cursor.execute("INSERT INTO launches (launch_id, launch_date_utc, launch_success, details, rocket_id) VALUES (%s, %s, %s, %s, %s)", 
-                      (item['id'], item['launch_date_utc'], item['launch_success'], item['details'], item['rocket']['rocket']['id']))
+        cur.execute("""
+            INSERT INTO launches (launch_id, launch_date_utc, launch_success, details, rocket_id) 
+            VALUES (%s, %s, %s, %s, %s)
+            ON CONFLICT DO NOTHING
+        """, (item['id'], item['launch_date_utc'], item['launch_success'], item['details'], item['rocket']['rocket']['id']))
 
-        cursor.execute("INSERT INTO missions (mission_id, mission_name) VALUES (%s, %s)", 
-                      (item['mission_id'][0], item['mission_name'] ))
-    conn.commit()
+        cur.execute("""
+            INSERT INTO missions (mission_id, mission_name)
+            VALUES (%s, %s)
+            ON CONFLICT DO NOTHING
+        """, (item['mission_id'][0], item['mission_name'] ))
+
+        conn.commit()
 
 def create_db(conn):
-    cursor = conn.cursor()
-    cursor.execute("""CREATE TABLE IF NOT EXISTS rockets (
+    cur = conn.cursor()
+    cur.execute("""CREATE TABLE IF NOT EXISTS rockets (
                     rocket_id VARCHAR(255) PRIMARY KEY,
                     rocket_name VARCHAR(255) NOT NULL,
                     rocket_type VARCHAR(255),
@@ -36,7 +45,7 @@ def create_db(conn):
                     country VARCHAR(150),
                     first_flight DATE
                   );""")
-    cursor.execute("""CREATE TABLE IF NOT EXISTS launches (
+    cur.execute("""CREATE TABLE IF NOT EXISTS launches (
                     launch_id VARCHAR(255) PRIMARY KEY,
                     launch_date_utc VARCHAR(255),
                     launch_success BOOLEAN,
@@ -46,7 +55,7 @@ def create_db(conn):
                       FOREIGN KEY (rocket_id)
                       REFERENCES rockets(rocket_id)
                   );""")
-    cursor.execute("""CREATE TABLE IF NOT EXISTS missions (
+    cur.execute("""CREATE TABLE IF NOT EXISTS missions (
                     mission_id VARCHAR(255) PRIMARY KEY,
                     mission_name VARCHAR(255) NOT NULL,
                     launch_id VARCHAR(255),
@@ -57,22 +66,14 @@ def create_db(conn):
 
     conn.commit()
 
-# Connect to the database
-def connection():
-  try:
-      conn = psycopg2.connect(database="spacexdb", user="username", password="secret", host="db", port="5432")
-  except psycopg2.OperationalError:
-      sleep(5)
-      connection()
-  finally:
-      return conn
-  
-conn = connection()
+# Set the parameters
+host = 'db'
+port = '5432'
+user = 'username'
+password = 'secret'
+database = 'spacexdb'
 
-#Creating database
-create_db(conn)
-# Download the data from the SpaceX GraphQL API
-query = """
+graph_query = """
 {
     launches {
       id
@@ -102,10 +103,43 @@ query = """
 }
 """
 
-data = download_data(query)
+showcase_query="""
+        SELECT relname AS table_name, n_live_tup AS row_count
+        FROM pg_stat_user_tables
+        ORDER BY n_live_tup DESC;
+    """
+
+# Connect to the database
+def connection():
+    conn = None
+    while conn is None:
+        try:
+            conn = psycopg2.connect(database=database, user=user, password=password, host=host, port=port)
+        except psycopg2.OperationalError:
+            sleep(5)
+    return conn
+
+def showcases(conn):
+    cur = conn.cursor()
+    cur.execute(showcase_query)
+    rows = cur.fetchall()
+    for row in rows:
+        print(row)
+    conn.commit()
+
+conn = connection()
+
+# Creating database
+create_db(conn)
+
+# Download the data from the SpaceX GraphQL API
+data = download_data(graph_query)
 
 # Store the data in the database
 store_data(conn, data['data'])
+
+# Data showcases
+showcases(conn)
 
 # Close the connection
 conn.close()

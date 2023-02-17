@@ -2,7 +2,7 @@ services:
   db:
     image: postgres
     ports:
-      - "5432:5432"
+      - "5438:5432"
     restart: always
     environment:
       POSTGRES_USER: username
@@ -15,7 +15,7 @@ services:
     depends_on:
       - "db"
     networks:
-      - app-tier      
+      - app-tier 
 networks:
   app-tier:
     driver: bridge
