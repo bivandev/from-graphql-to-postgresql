@@ -1,4 +1,10 @@
-CREATE TABLE missions (
+CREATE TABLE IF NOT EXISTS rockets (
+  rocket_id VARCHAR(255) PRIMARY KEY,
+  rocket_name VARCHAR(255) NOT NULL,
+  rocket_type VARCHAR(255)
+);
+
+CREATE TABLE IF NOT EXISTS missions (
   mission_id VARCHAR(255) PRIMARY KEY,
   mission_name VARCHAR(255) NOT NULL,
   launch_date_utc VARCHAR(255),
@@ -8,7 +14,7 @@ CREATE TABLE missions (
     REFERENCES rockets(rocket_id)
 );
 
-CREATE TABLE launches (
+CREATE TABLE IF NOT EXISTS launches (
   launch_id VARCHAR(255) PRIMARY KEY,
   mission_id VARCHAR(255) NOT NULL,
   launch_date_utc VARCHAR(255),
@@ -19,8 +25,3 @@ CREATE TABLE launches (
     REFERENCES missions(mission_id)
 );
 
-CREATE TABLE rockets (
-  rocket_id VARCHAR(255) PRIMARY KEY,
-  rocket_name VARCHAR(255) NOT NULL,
-  rocket_type VARCHAR(255)
-);

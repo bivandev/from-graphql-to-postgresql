@@ -14,3 +14,5 @@ GROUP BY rocket_name;
 SELECT launch_name, COUNT(launch_id) AS launch_count;
 FROM Launches;
 GROUP BY launch_name;
+
+docker exec -it py_db_1  psql -U username -W spacexdb
