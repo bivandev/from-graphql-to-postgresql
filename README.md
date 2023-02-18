@@ -14,6 +14,8 @@ To run this app, you need to have Docker and Docker Compose installed on your ma
 After starting the app, it will download data from the specified GraphQL API and store it in the PostgreSQL container.
 To access the data, you can use any PostgreSQL client and connect to the spacexdb database on port 5432 by this comand: 
 
-`docker exec -it <db-container-name>  psql -U <username> -W <db-name>` (default= `docker exec -it py_db_1  psql -U username -W spacexdb`)
+`docker exec -it <db-container-name>  psql -U <username> -W <db-name>`
+
+(default= `docker exec -it py_db_1  psql -U username -W spacexdb`)
 
 You will be prompted for the password (default=`secret`)
