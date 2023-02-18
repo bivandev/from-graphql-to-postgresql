@@ -3,4 +3,5 @@ WORKDIR /code
 ADD requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 COPY app.py app.py
+COPY config.json config.json
 CMD ["python", "-u", "app.py"]

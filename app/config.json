@@ -1,0 +1,14 @@
+{
+    "ct_rockets": "CREATE TABLE IF NOT EXISTS rockets (rocket_id VARCHAR(255) PRIMARY KEY, rocket_name VARCHAR(255) NOT NULL, rocket_type VARCHAR(255), active BOOLEAN, boosters INT, cost_per_launch INT, country VARCHAR(150), first_flight DATE );",
+    "ct_launches": "CREATE TABLE IF NOT EXISTS launches (launch_id VARCHAR(255) PRIMARY KEY, launch_date_utc VARCHAR(255), launch_success BOOLEAN, details TEXT, rocket_id VARCHAR(255), CONSTRAINT fk_rocket_id FOREIGN KEY (rocket_id) REFERENCES rockets(rocket_id));",
+    "ct_missions": "CREATE TABLE IF NOT EXISTS missions (mission_id VARCHAR(255) PRIMARY KEY, mission_name VARCHAR(255) NOT NULL, launch_id VARCHAR(255), CONSTRAINT fk_launch_id FOREIGN KEY (launch_id) REFERENCES launches(launch_id));",
+    "showcase": "SELECT relname AS table_name, n_live_tup AS row_count FROM pg_stat_user_tables ORDER BY n_live_tup DESC;",
+    
+    "graphql": "{launches {id launch_date_utc launch_success details mission_id mission_name rocket {rocket {id}}} rockets {active boosters cost_per_launch country first_flight id name type}}",
+    
+    "host": "db",
+    "port": "5432",
+    "user": "username",
+    "password": "secret",
+    "database": "spacexdb"
+}
