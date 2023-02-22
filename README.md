@@ -1,4 +1,4 @@
-# From-GraphQl-to-Postgresql
+# From-GraphQl-to-PostgreSQL
 This project is a simple app that downloads data from a GraphQL API and stores it in a PostgreSQL container. The app is containerized using Docker for easy deployment and management.
 
 ## Prerequisites
